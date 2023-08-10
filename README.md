@@ -47,4 +47,4 @@ This script creates a local web app showcasing the results of the pipeline.
 To run this script, navigate to the 'app' directory and: python run.py
 ### model_tuning.ipynb
 
-Due to the poor performance of the random forest classifier, I explored the xgboost classifier as a possible alternative. While the xgboost classifier performed much better than the random forest classifier, I was unable to sucessfully implement it, as training on the web IDE provided by Udacity for this project took far too long. 
+Due to the poor performance of the random forest classifier, I explored the xgboost classifier as a possible alternative. While the xgboost classifier performed much better than the random forest classifier, I was unfortunately could not implement it sucessfully, as training on the web IDE provided by Udacity for this project took far too long (> 1 hour). 
