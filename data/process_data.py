@@ -3,6 +3,15 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
+    """
+    This function loads and merges the messages and categories datasets on message id.
+
+    Input:
+        messages_filepath : filepath to the csv file containing disaster messages
+        categories_filepath : filepath to the csv file containing the categories of the disaster messages
+    Output:
+        df : Dataframe consisting of merged messages and categories
+    """
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     #merge messages and categories dataframes on id key
@@ -12,6 +21,18 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
+    """
+    This function cleans the merged dataframe by:
+    1. setting appropriate column labels
+    2. extracting numeric data e.g. related - 1 ---> 1
+    3. converting from string to numeric
+
+    Input:
+        df : Merged dataframe of messages and categories
+    Output:
+        df : Cleaned dataframe
+    """
+
     # create a dataframe of the 36 individual category columns
     categories = df['categories'].str.split(pat=';',expand=True)
     
@@ -46,6 +67,16 @@ def clean_data(df):
 
 
 def save_data(df, database_filename):
+    """
+    This function saves the cleaned dataframe to a .db file
+
+    Input:
+        df : cleaned dataframe
+        database_filename: filepath where database file will be saved
+    Output:
+        None
+    """
+
     out_path = 'sqlite:///' +  database_filename
     engine = create_engine(out_path)
     df.to_sql('MessageCategories', engine, index=False)
