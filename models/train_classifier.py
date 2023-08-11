@@ -1,8 +1,3 @@
-#pip install --upgrade setuptools
-#pip install --upgrade pip
-#pip install --upgrade xgboost
-#pip install --upgrade hyperopt
-#pip install --upgrade numpy
 import sys
 import pandas as pd
 import numpy as np
@@ -24,6 +19,17 @@ import timeit
 import pickle
 
 def load_data(database_filepath):
+    """
+    This function loads in the cleaned messages and categories stored in the database file
+
+    Input:
+        database_filepath : filepath to location where database is stored
+    Output
+        X: Dataframe containing just the messages
+        Y: Dataframe containing the column categories
+        Y.columns: category labels
+    """
+
     engine = create_engine('sqlite:///'+database_filepath)
     df = pd.read_sql_table('MessageCategories',con=engine)
     
@@ -36,6 +42,19 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
+    """
+    Custom tokenization function. This function:
+    1. replaces urls with a custom placeholder
+    2. Lemmatizes
+    3. reduces to lower case
+    4. removes spaces
+    5. tokenizes (converts sentences to individual words)
+
+    Input:
+        text : string containing a message
+    Output
+        clean_tokens: list containing cleaned tokens
+    """
     
     url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
     
@@ -53,6 +72,8 @@ def tokenize(text):
 
     return clean_tokens
     pass
+
+####Attempt to inplement XGBoost
 
 # def optimize_hyperpars(X, Y):
 #     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = .25, random_state=666)
@@ -116,7 +137,22 @@ def tokenize(text):
 #     score = np.sqrt(score/y_test.shape[1])
 #     return score
 
+#######
+
 def build_model():
+    """
+    This function:
+    1. Builds a pipeline consisting of a count vectorizer, tfidf transformer and 
+        multioutputclassifier using a random forest classifier
+    2. Uses gridsearch to determine the best parameters from a small subset of possible options.
+        This subset of potential parameters is kept small to allow the program to complete in ~15 minutes
+
+    Input:
+        None
+    Output
+        cv : pipeline with the best parameters
+    """
+    
     classifier = RandomForestClassifier()
     pipeline = Pipeline([
         ('vect',CountVectorizer(tokenizer=tokenize)),
@@ -134,6 +170,20 @@ def build_model():
     return cv
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    """
+    This function:
+    Evaluates the model by printing out the classification report (precision, recall, f1 score)
+    for each category
+
+    Input:
+        model : the best model determined through gridsearch
+        X_test : test set of messages
+        Y_test : categories corresponding to the test set messages
+        category_names : the category labels
+    Output
+        None
+    """
+
     Y_pred = model.predict(X_test)
     for i,col in enumerate(category_names):
         Y_pred_col = Y_pred[:,i]
@@ -144,6 +194,16 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    """
+    This function saves the model to a pickle file
+
+    Input:
+        model : the machine learning model
+        model_filepath: filepath to location where model will be saved
+    Output
+        None
+    """
+
     pickle.dump(model, open(model_filepath, 'wb'))
     pass
 
