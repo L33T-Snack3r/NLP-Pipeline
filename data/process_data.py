@@ -26,6 +26,7 @@ def clean_data(df):
     1. setting appropriate column labels
     2. extracting numeric data e.g. related - 1 ---> 1
     3. converting from string to numeric
+    4. convert all 2s to 1s
 
     Input:
         df : Merged dataframe of messages and categories
@@ -52,7 +53,10 @@ def clean_data(df):
     
         # convert column from string to numeric
         categories[column] = categories[column].astype(int)
-    
+
+        # Some values have 0, 1 and 2. This converts all values which are 2s into 1s
+        categories.loc[(categories[column] == 2),column] = 1
+
     # drop the original categories column from `df`
     df = df.drop(columns=['categories'])
     
@@ -79,7 +83,7 @@ def save_data(df, database_filename):
 
     out_path = 'sqlite:///' +  database_filename
     engine = create_engine(out_path)
-    df.to_sql('MessageCategories', engine, index=False)
+    df.to_sql('MessageCategories', engine, index=False, if_exists='replace')
     pass  
 
 

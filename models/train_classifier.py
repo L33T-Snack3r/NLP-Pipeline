@@ -6,6 +6,7 @@ import re
 import nltk
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords
 from sklearn.metrics import confusion_matrix, classification_report, f1_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
@@ -57,12 +58,15 @@ def tokenize(text):
     """
     
     url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-    
+    stop_words = stopwords.words('english')
+
     detected_urls = re.findall(url_regex, text)
     for url in detected_urls:
         text = text.replace(url, "urlplaceholder")
 
     tokens = word_tokenize(text)
+    tokens = [tok for tok in tokens if tok not in stop_words]
+
     lemmatizer = WordNetLemmatizer()
 
     clean_tokens = []
